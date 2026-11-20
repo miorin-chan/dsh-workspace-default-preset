@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Valores predeterminados de agente por espacio de trabajo",
+    "description": "Guarda un preset de agente predeterminado por espacio de trabajo en .dsh/agent-preset.json y lo usa para las sesiones nuevas. El menú del espacio de trabajo lo cambia."
+  }
+}

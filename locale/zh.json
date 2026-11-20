@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "工作区 Agent 默认值",
+    "description": "把每个工作区的默认 Agent preset 保存在该工作区的 .dsh/agent-preset.json，新会话自动使用；可在工作区菜单中修改。"
+  }
+}

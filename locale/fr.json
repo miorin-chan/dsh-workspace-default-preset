@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Valeurs par défaut d’agent par espace de travail",
+    "description": "Enregistre un preset d’agent par défaut pour chaque espace de travail dans .dsh/agent-preset.json et l’utilise pour ses nouvelles sessions. Le menu de l’espace de travail le modifie."
+  }
+}

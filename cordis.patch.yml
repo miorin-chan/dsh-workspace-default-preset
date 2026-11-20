@@ -1,0 +1,5 @@
+# Activates the bundle. The Host half is inert; the Client half ships through
+# package.json `dsh.client` and carries Workspace agent defaults.
+- insert:
+    - id: dsh-workspace-agent-preset
+      name: 'dsh-workspace-agent-preset'

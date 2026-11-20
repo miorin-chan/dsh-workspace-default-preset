@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Workspace agent defaults",
+    "description": "Stores a default agent preset per workspace in its .dsh/agent-preset.json and starts new sessions there with it. The workspace menu changes it."
+  }
+}

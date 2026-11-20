@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Arbeitsbereich-Agent-Standards",
+    "description": "Speichert pro Arbeitsbereich ein Standard-Agent-Preset in .dsh/agent-preset.json und verwendet es für neue Sitzungen. Das Menü des Arbeitsbereichs ändert es."
+  }
+}

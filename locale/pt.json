@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Padrões de agente por espaço de trabalho",
+    "description": "Guarda um preset de agente padrão por espaço de trabalho em .dsh/agent-preset.json e o usa nas novas sessões. O menu do espaço de trabalho altera."
+  }
+}
