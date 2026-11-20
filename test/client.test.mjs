@@ -22,6 +22,7 @@ const translate = (dictionary) => (key, values = {}) =>
 const PRESETS = [
   { id: 'standard', name: 'Standard', isDefault: true },
   { id: 'human-tone', name: 'Human tone', isDefault: false },
+  { id: 'cordis' },
 ]
 
 /**
@@ -200,8 +201,10 @@ test('workspace menu lists presets and writes the chosen default', async () => {
   const actions = await contribution.resolve(workspaceTarget, new AbortController().signal)
   assert.equal(actions.length, 1)
   const [parent] = actions
-  assert.match(parent.label, /Host default|host default|宿主默认/i)
+  assert.equal(parent.label, 'Default preset')
   assert.equal(parent.children.length, PRESETS.length + 1)
+  assert.equal(parent.children[0].label, 'Global default')
+  assert.equal(parent.children.find(child => child.id === 'preset:cordis').label, 'Creator')
   assert.equal(parent.children[0].disabled, true, 'the global action is disabled while no workspace default is set')
 
   const human = parent.children.find(child => child.id === 'preset:human-tone')

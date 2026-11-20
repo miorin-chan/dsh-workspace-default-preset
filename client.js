@@ -38,100 +38,108 @@ window.__ModuleLoader__.load({
     /** Visible text this module renders itself; plugin-meta text lives in locale/*.json. */
     const LABELS = {
       en: {
-        menuTitle: 'Default agent preset: {current}',
-        menuGlobal: 'Use global default ({preset})',
-        menuHostDefault: 'Use the host default',
-        menuUnavailable: 'No agent presets are available',
-        menuUnavailableReason: 'Unavailable: {reason}',
-        noticeSaved: 'New sessions in this workspace use {preset}',
-        noticeGlobal: 'Workspace default cleared; new sessions use the global default',
+        menuTitle: 'Default preset',
+        menuGlobal: 'Global default',
+        menuUnavailable: 'Unavailable',
+        noticeSaved: 'New sessions here use {preset}',
+        noticeGlobal: 'Workspace default cleared',
         noticeFailed: 'Could not save the workspace default',
         failure: 'Reopen the workspace menu to try again',
-        currentUnknown: 'unreadable',
+        presetStandard: 'Standard',
+        presetPtc: 'PTC',
+        presetMinimal: 'Minimal',
+        presetCordis: 'Creator',
       },
       zh: {
-        menuTitle: '默认 Agent 预设：{current}',
-        menuGlobal: '使用全局默认（{preset}）',
-        menuHostDefault: '使用宿主默认',
-        menuUnavailable: '当前没有可用的 Agent 预设',
-        menuUnavailableReason: '暂不可用：{reason}',
-        noticeSaved: '该工作区的新会话将使用「{preset}」',
-        noticeGlobal: '已清除工作区默认；新会话使用全局默认',
+        menuTitle: '默认预设',
+        menuGlobal: '全局默认',
+        menuUnavailable: '暂不可用',
+        noticeSaved: '该工作区的新会话使用「{preset}」',
+        noticeGlobal: '已清除工作区默认',
         noticeFailed: '无法保存工作区默认值',
         failure: '请从工作区菜单重试',
-        currentUnknown: '读取失败',
+        presetStandard: '标准',
+        presetPtc: 'PTC',
+        presetMinimal: '极简',
+        presetCordis: '创造',
       },
       ja: {
-        menuTitle: '既定の Agent プリセット: {current}',
-        menuGlobal: 'グローバル既定値を使用 ({preset})',
-        menuHostDefault: 'ホストの既定値を使用',
-        menuUnavailable: '利用できる Agent プリセットがありません',
-        menuUnavailableReason: '利用不可: {reason}',
+        menuTitle: '既定のプリセット',
+        menuGlobal: 'グローバル既定値',
+        menuUnavailable: '利用不可',
         noticeSaved: 'このワークスペースの新規セッションは {preset} を使用します',
-        noticeGlobal: 'ワークスペース既定値を解除しました。新規セッションはグローバル既定値を使用します',
+        noticeGlobal: 'ワークスペース既定値を解除しました',
         noticeFailed: 'ワークスペース既定値を保存できませんでした',
         failure: 'ワークスペースメニューから再試行してください',
-        currentUnknown: '読み取り不能',
+        presetStandard: '標準',
+        presetPtc: 'PTC',
+        presetMinimal: '最小',
+        presetCordis: 'クリエイター',
       },
       de: {
-        menuTitle: 'Standard-Agent-Preset: {current}',
-        menuGlobal: 'Globalen Standard verwenden ({preset})',
-        menuHostDefault: 'Host-Standard verwenden',
-        menuUnavailable: 'Keine Agent-Presets verfügbar',
-        menuUnavailableReason: 'Nicht verfügbar: {reason}',
-        noticeSaved: 'Neue Sitzungen in diesem Arbeitsbereich verwenden {preset}',
-        noticeGlobal: 'Arbeitsbereichsstandard entfernt; neue Sitzungen verwenden den globalen Standard',
+        menuTitle: 'Standard-Preset',
+        menuGlobal: 'Globaler Standard',
+        menuUnavailable: 'Nicht verfügbar',
+        noticeSaved: 'Neue Sitzungen hier verwenden {preset}',
+        noticeGlobal: 'Arbeitsbereichsstandard entfernt',
         noticeFailed: 'Der Arbeitsbereichsstandard konnte nicht gespeichert werden',
         failure: 'Öffnen Sie das Arbeitsbereichsmenü erneut',
-        currentUnknown: 'nicht lesbar',
+        presetStandard: 'Standard',
+        presetPtc: 'PTC',
+        presetMinimal: 'Minimal',
+        presetCordis: 'Ersteller',
       },
       es: {
-        menuTitle: 'Preset de agente predeterminado: {current}',
-        menuGlobal: 'Usar el predeterminado global ({preset})',
-        menuHostDefault: 'Usar el predeterminado del host',
-        menuUnavailable: 'No hay presets de agente disponibles',
-        menuUnavailableReason: 'No disponible: {reason}',
-        noticeSaved: 'Las sesiones nuevas de este espacio de trabajo usan {preset}',
-        noticeGlobal: 'Predeterminado del espacio de trabajo borrado; las sesiones nuevas usan el global',
+        menuTitle: 'Preset predeterminado',
+        menuGlobal: 'Predeterminado global',
+        menuUnavailable: 'No disponible',
+        noticeSaved: 'Las sesiones nuevas aquí usan {preset}',
+        noticeGlobal: 'Predeterminado del espacio de trabajo borrado',
         noticeFailed: 'No se pudo guardar el predeterminado del espacio de trabajo',
         failure: 'Vuelve a abrir el menú del espacio de trabajo',
-        currentUnknown: 'ilegible',
+        presetStandard: 'Estándar',
+        presetPtc: 'PTC',
+        presetMinimal: 'Mínimo',
+        presetCordis: 'Creador',
       },
       fr: {
-        menuTitle: 'Preset d’agent par défaut : {current}',
-        menuGlobal: 'Utiliser la valeur globale ({preset})',
-        menuHostDefault: 'Utiliser la valeur de l’hôte',
-        menuUnavailable: 'Aucun preset d’agent disponible',
-        menuUnavailableReason: 'Indisponible : {reason}',
-        noticeSaved: 'Les nouvelles sessions de cet espace de travail utilisent {preset}',
-        noticeGlobal: 'Valeur par défaut de l’espace de travail effacée ; les nouvelles sessions utilisent la valeur globale',
-        noticeFailed: 'Impossible d’enregistrer la valeur par défaut de l’espace de travail',
+        menuTitle: 'Preset par défaut',
+        menuGlobal: 'Valeur globale',
+        menuUnavailable: 'Indisponible',
+        noticeSaved: 'Les nouvelles sessions ici utilisent {preset}',
+        noticeGlobal: 'Valeur par défaut de l’espace de travail effacée',
+        noticeFailed: 'Impossible d’enregistrer la valeur par défaut',
         failure: 'Rouvrez le menu de l’espace de travail',
-        currentUnknown: 'illisible',
+        presetStandard: 'Standard',
+        presetPtc: 'PTC',
+        presetMinimal: 'Minimal',
+        presetCordis: 'Créateur',
       },
       pt: {
-        menuTitle: 'Preset de agente padrão: {current}',
-        menuGlobal: 'Usar o padrão global ({preset})',
-        menuHostDefault: 'Usar o padrão do host',
-        menuUnavailable: 'Nenhum preset de agente disponível',
-        menuUnavailableReason: 'Indisponível: {reason}',
-        noticeSaved: 'Novas sessões neste espaço de trabalho usam {preset}',
-        noticeGlobal: 'Padrão do espaço de trabalho removido; novas sessões usam o global',
-        noticeFailed: 'Não foi possível salvar o padrão do espaço de trabalho',
+        menuTitle: 'Preset padrão',
+        menuGlobal: 'Padrão global',
+        menuUnavailable: 'Indisponível',
+        noticeSaved: 'Novas sessões aqui usam {preset}',
+        noticeGlobal: 'Padrão do espaço de trabalho removido',
+        noticeFailed: 'Não foi possível salvar o padrão',
         failure: 'Abra novamente o menu do espaço de trabalho',
-        currentUnknown: 'ilegível',
+        presetStandard: 'Padrão',
+        presetPtc: 'PTC',
+        presetMinimal: 'Mínimo',
+        presetCordis: 'Criador',
       },
       ru: {
-        menuTitle: 'Пресет агента по умолчанию: {current}',
-        menuGlobal: 'Использовать глобальный ({preset})',
-        menuHostDefault: 'Использовать значение хоста',
-        menuUnavailable: 'Нет доступных пресетов агента',
-        menuUnavailableReason: 'Недоступно: {reason}',
-        noticeSaved: 'Новые сеансы в этом рабочем пространстве используют {preset}',
-        noticeGlobal: 'Значение рабочего пространства сброшено; новые сеансы используют глобальное',
-        noticeFailed: 'Не удалось сохранить значение рабочего пространства',
+        menuTitle: 'Пресет по умолчанию',
+        menuGlobal: 'Глобальный по умолчанию',
+        menuUnavailable: 'Недоступно',
+        noticeSaved: 'Новые сеансы здесь используют {preset}',
+        noticeGlobal: 'Значение рабочего пространства сброшено',
+        noticeFailed: 'Не удалось сохранить значение',
         failure: 'Откройте меню рабочего пространства ещё раз',
-        currentUnknown: 'не читается',
+        presetStandard: 'Стандарт',
+        presetPtc: 'PTC',
+        presetMinimal: 'Минимал',
+        presetCordis: 'Создатель',
       },
     }
 
@@ -308,7 +316,18 @@ window.__ModuleLoader__.load({
           if (sessions.create === patchedCreate) sessions.create = originalCreate
         }, `${NS}: sessions.create`)
 
-        const nameOf = preset => preset?.name ?? preset?.id ?? ''
+        const BUILT_IN_NAME_KEYS = {
+          standard: 'presetStandard',
+          ptc: 'presetPtc',
+          minimal: 'presetMinimal',
+          cordis: 'presetCordis',
+        }
+        const nameOf = (preset) => {
+          if (preset === undefined) return ''
+          const key = preset.name === undefined ? BUILT_IN_NAME_KEYS[preset.id] : undefined
+          if (key !== undefined) return t(key)
+          return preset.name ?? preset.id
+        }
 
         /**
          * Move the retained blank Session of this Workspace onto the new
@@ -355,11 +374,10 @@ window.__ModuleLoader__.load({
           target: 'workspace',
           order: MENU_ORDER,
           resolve: async (target, signal) => {
-            const unavailable = reason => [{
-              id: 'unavailable',
-              label: reason === undefined ? t('menuUnavailable') : t('menuUnavailableReason', { reason }),
-              disabled: true,
-            }]
+            const unavailable = (reason) => {
+              if (reason !== undefined) warnOnce('unavailable', reason)
+              return [{ id: 'unavailable', label: t('menuUnavailable'), disabled: true }]
+            }
             const service = await namespace()
             if (service === undefined) {
               return unavailable(mountFailure instanceof Error ? mountFailure.message : String(mountFailure))
@@ -387,13 +405,11 @@ window.__ModuleLoader__.load({
             }
             return [{
               id: 'default',
-              label: t('menuTitle', {
-                current: known !== undefined ? nameOf(known) : (current ?? t('menuHostDefault')),
-              }),
+              label: t('menuTitle'),
               children: [
                 {
                   id: 'global',
-                  label: t('menuGlobal', { preset: global !== undefined ? nameOf(global) : t('menuHostDefault') }),
+                  label: t('menuGlobal'),
                   ...(current === null ? { disabled: true } : {}),
                   failureLabel: t('failure'),
                   run: () => save(target, null, undefined, global?.id),
