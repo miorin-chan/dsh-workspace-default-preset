@@ -42,6 +42,7 @@ window.__ModuleLoader__.load({
         menuGlobal: 'Use global default ({preset})',
         menuHostDefault: 'Use the host default',
         menuUnavailable: 'No agent presets are available',
+        menuUnavailableReason: 'Unavailable: {reason}',
         noticeSaved: 'New sessions in this workspace use {preset}',
         noticeGlobal: 'Workspace default cleared; new sessions use the global default',
         noticeFailed: 'Could not save the workspace default',
@@ -53,6 +54,7 @@ window.__ModuleLoader__.load({
         menuGlobal: '使用全局默认（{preset}）',
         menuHostDefault: '使用宿主默认',
         menuUnavailable: '当前没有可用的 Agent 预设',
+        menuUnavailableReason: '暂不可用：{reason}',
         noticeSaved: '该工作区的新会话将使用「{preset}」',
         noticeGlobal: '已清除工作区默认；新会话使用全局默认',
         noticeFailed: '无法保存工作区默认值',
@@ -64,6 +66,7 @@ window.__ModuleLoader__.load({
         menuGlobal: 'グローバル既定値を使用 ({preset})',
         menuHostDefault: 'ホストの既定値を使用',
         menuUnavailable: '利用できる Agent プリセットがありません',
+        menuUnavailableReason: '利用不可: {reason}',
         noticeSaved: 'このワークスペースの新規セッションは {preset} を使用します',
         noticeGlobal: 'ワークスペース既定値を解除しました。新規セッションはグローバル既定値を使用します',
         noticeFailed: 'ワークスペース既定値を保存できませんでした',
@@ -75,6 +78,7 @@ window.__ModuleLoader__.load({
         menuGlobal: 'Globalen Standard verwenden ({preset})',
         menuHostDefault: 'Host-Standard verwenden',
         menuUnavailable: 'Keine Agent-Presets verfügbar',
+        menuUnavailableReason: 'Nicht verfügbar: {reason}',
         noticeSaved: 'Neue Sitzungen in diesem Arbeitsbereich verwenden {preset}',
         noticeGlobal: 'Arbeitsbereichsstandard entfernt; neue Sitzungen verwenden den globalen Standard',
         noticeFailed: 'Der Arbeitsbereichsstandard konnte nicht gespeichert werden',
@@ -86,6 +90,7 @@ window.__ModuleLoader__.load({
         menuGlobal: 'Usar el predeterminado global ({preset})',
         menuHostDefault: 'Usar el predeterminado del host',
         menuUnavailable: 'No hay presets de agente disponibles',
+        menuUnavailableReason: 'No disponible: {reason}',
         noticeSaved: 'Las sesiones nuevas de este espacio de trabajo usan {preset}',
         noticeGlobal: 'Predeterminado del espacio de trabajo borrado; las sesiones nuevas usan el global',
         noticeFailed: 'No se pudo guardar el predeterminado del espacio de trabajo',
@@ -97,6 +102,7 @@ window.__ModuleLoader__.load({
         menuGlobal: 'Utiliser la valeur globale ({preset})',
         menuHostDefault: 'Utiliser la valeur de l’hôte',
         menuUnavailable: 'Aucun preset d’agent disponible',
+        menuUnavailableReason: 'Indisponible : {reason}',
         noticeSaved: 'Les nouvelles sessions de cet espace de travail utilisent {preset}',
         noticeGlobal: 'Valeur par défaut de l’espace de travail effacée ; les nouvelles sessions utilisent la valeur globale',
         noticeFailed: 'Impossible d’enregistrer la valeur par défaut de l’espace de travail',
@@ -108,6 +114,7 @@ window.__ModuleLoader__.load({
         menuGlobal: 'Usar o padrão global ({preset})',
         menuHostDefault: 'Usar o padrão do host',
         menuUnavailable: 'Nenhum preset de agente disponível',
+        menuUnavailableReason: 'Indisponível: {reason}',
         noticeSaved: 'Novas sessões neste espaço de trabalho usam {preset}',
         noticeGlobal: 'Padrão do espaço de trabalho removido; novas sessões usam o global',
         noticeFailed: 'Não foi possível salvar o padrão do espaço de trabalho',
@@ -119,6 +126,7 @@ window.__ModuleLoader__.load({
         menuGlobal: 'Использовать глобальный ({preset})',
         menuHostDefault: 'Использовать значение хоста',
         menuUnavailable: 'Нет доступных пресетов агента',
+        menuUnavailableReason: 'Недоступно: {reason}',
         noticeSaved: 'Новые сеансы в этом рабочем пространстве используют {preset}',
         noticeGlobal: 'Значение рабочего пространства сброшено; новые сеансы используют глобальное',
         noticeFailed: 'Не удалось сохранить значение рабочего пространства',
@@ -226,6 +234,7 @@ window.__ModuleLoader__.load({
         }
 
         let api
+        let mountFailure
         const mounting = ctx.remote.$mount(CONTRIBUTION).then(
           (dispose) => {
             api = ctx.get(REMOTE_KEY)
@@ -233,6 +242,7 @@ window.__ModuleLoader__.load({
             return dispose
           },
           (error) => {
+            mountFailure = error
             warnOnce('mount', error)
             return undefined
           },
@@ -345,22 +355,28 @@ window.__ModuleLoader__.load({
           target: 'workspace',
           order: MENU_ORDER,
           resolve: async (target, signal) => {
-            const unavailable = () => [{ id: 'unavailable', label: t('menuUnavailable'), disabled: true }]
+            const unavailable = reason => [{
+              id: 'unavailable',
+              label: reason === undefined ? t('menuUnavailable') : t('menuUnavailableReason', { reason }),
+              disabled: true,
+            }]
             const service = await namespace()
-            if (service === undefined) return unavailable()
+            if (service === undefined) {
+              return unavailable(mountFailure instanceof Error ? mountFailure.message : String(mountFailure))
+            }
             let presets
             try {
               const roster = await ctx.remote.agentPresets.list()
               if (!roster.ok) {
                 warnOnce('roster', roster.error)
-                return unavailable()
+                return unavailable(roster.error.message)
               }
               presets = roster.value.presets
               if (signal.aborted) return []
               await presetOf(target.workspaceId, { fresh: true })
             } catch (error) {
               warnOnce('resolve', error)
-              return unavailable()
+              return unavailable(error instanceof Error ? error.message : String(error))
             }
             if (signal.aborted) return []
             const current = defaults.get(target.workspaceId) ?? null
