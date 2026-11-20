@@ -36,4 +36,10 @@ In **Plugins** > **Add plugin**, choose this directory, or install the bundle wi
 The bundle appears as **Workspace agent defaults**.
 Disable it in **Plugins** to remove the menu and the injection again; Workspace files stay on disk.
 
+## Workspace family
+
+This bundle is part of the [`dsh-workspace-family`](../dsh-workspace-family/README.md) aggregate,
+which puts it on one **Plugins** card with the workspace picker and the workspace name in the session header.
+The aggregate inserts the same row id, so install either this bundle or the aggregate, never both.
+
 [Project documentation](docs/README.md)
