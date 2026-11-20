@@ -59,7 +59,7 @@ window.__ModuleLoader__.load({
     /** Visible text this module renders itself; plugin-meta text lives in locale/*.json. */
     const LABELS = {
       en: {
-        menuTitle: 'Default: {current}',
+        menuTitle: 'Default · {current}',
         menuGlobal: 'Use global default ({preset})',
         menuGlobalPlain: 'Global default',
         menuUnavailable: 'No agent presets are available',
@@ -69,7 +69,7 @@ window.__ModuleLoader__.load({
         failure: 'Reopen the workspace menu to try again',
       },
       zh: {
-        menuTitle: '默认：{current}',
+        menuTitle: '默认 · {current}',
         menuGlobal: '使用全局默认（{preset}）',
         menuGlobalPlain: '全局默认',
         menuUnavailable: '当前没有可用的 Agent 预设',
@@ -79,7 +79,7 @@ window.__ModuleLoader__.load({
         failure: '请从工作区菜单重试',
       },
       ja: {
-        menuTitle: '既定: {current}',
+        menuTitle: '既定 · {current}',
         menuGlobal: 'グローバル既定値を使用 ({preset})',
         menuGlobalPlain: 'グローバル既定値',
         menuUnavailable: '利用できる Agent プリセットがありません',
@@ -89,7 +89,7 @@ window.__ModuleLoader__.load({
         failure: 'ワークスペースメニューから再試行してください',
       },
       de: {
-        menuTitle: 'Standard: {current}',
+        menuTitle: 'Standard · {current}',
         menuGlobal: 'Globalen Standard verwenden ({preset})',
         menuGlobalPlain: 'Globaler Standard',
         menuUnavailable: 'Keine Agent-Presets verfügbar',
@@ -99,7 +99,7 @@ window.__ModuleLoader__.load({
         failure: 'Öffnen Sie das Arbeitsbereichsmenü erneut',
       },
       es: {
-        menuTitle: 'Predeterminado: {current}',
+        menuTitle: 'Predeterminado · {current}',
         menuGlobal: 'Usar el predeterminado global ({preset})',
         menuGlobalPlain: 'Predeterminado global',
         menuUnavailable: 'No hay presets de agente disponibles',
@@ -109,7 +109,7 @@ window.__ModuleLoader__.load({
         failure: 'Vuelve a abrir el menú del espacio de trabajo',
       },
       fr: {
-        menuTitle: 'Par défaut : {current}',
+        menuTitle: 'Par défaut · {current}',
         menuGlobal: 'Utiliser la valeur globale ({preset})',
         menuGlobalPlain: 'Valeur globale',
         menuUnavailable: 'Aucun preset d’agent disponible',
@@ -119,7 +119,7 @@ window.__ModuleLoader__.load({
         failure: 'Rouvrez le menu de l’espace de travail',
       },
       pt: {
-        menuTitle: 'Padrão: {current}',
+        menuTitle: 'Padrão · {current}',
         menuGlobal: 'Usar o padrão global ({preset})',
         menuGlobalPlain: 'Padrão global',
         menuUnavailable: 'Nenhum preset de agente disponível',
@@ -129,7 +129,7 @@ window.__ModuleLoader__.load({
         failure: 'Abra novamente o menu do espaço de trabalho',
       },
       ru: {
-        menuTitle: 'По умолчанию: {current}',
+        menuTitle: 'По умолчанию · {current}',
         menuGlobal: 'Использовать глобальный ({preset})',
         menuGlobalPlain: 'Глобальный по умолчанию',
         menuUnavailable: 'Нет доступных пресетов агента',
