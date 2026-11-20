@@ -222,7 +222,7 @@ window.__ModuleLoader__.load({
     }
 
     return {
-      inject: ['locale', 'contextMenus', 'remote', 'sessions', 'workspaces'],
+      inject: ['locale', 'contextMenus', 'remote', 'remote.agentPresets', 'sessions', 'workspaces'],
       apply(ctx) {
         ctx.effect(() => ctx.locale.register(NS, LABELS), `${NS}: locale`)
         const t = ctx.locale.bind(NS)

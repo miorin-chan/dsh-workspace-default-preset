@@ -140,7 +140,7 @@ const menuContribution = context => context.menus.find(entry => entry.id === 'wo
 const workspaceTarget = { workspaceId: 'ws-1', path: '/tmp/ws-1', displayTitle: 'ws-1' }
 
 test('declares the services it injects', () => {
-  assert.deepEqual(plugin.inject, ['locale', 'contextMenus', 'remote', 'sessions', 'workspaces'])
+  assert.deepEqual(plugin.inject, ['locale', 'contextMenus', 'remote', 'remote.agentPresets', 'sessions', 'workspaces'])
 })
 
 test('registers eight locales and releases them on unload', async () => {
