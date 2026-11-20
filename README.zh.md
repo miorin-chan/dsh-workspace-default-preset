@@ -3,7 +3,7 @@
 [English](README.md)
 
 给每个工作区自己的默认 Agent preset。
-在侧栏右键工作区，打开 **默认预设**，选择某个 preset 或 **使用全局默认**。
+在侧栏右键工作区，打开 **默认**，选择某个 preset 或 **使用全局默认**。
 选择会写入 `<工作区>/.dsh/agent-preset.json`，该工作区的新会话就用它启动。
 
 需要 DeepSeek Harness 0.2.2-rc.3 或更新版本。
