@@ -31,7 +31,8 @@ Web Client 的新会话流程（`uiWorkspace.startSession` / `openWorkspace` / `
 
 Host half 注册 `workspaceAgentPresets` 服务，把 `workspaceId` 经 durable Workspace registry 解析成目录，
 只读写该目录下的文件。
-Client 通过手写 Typert contribution 挂载同名 Remote namespace；`./typert` manifest 提供严格 codec。
+Client 通过手写 Typert contribution 挂载同名 Remote namespace；
+Host 在 `index.js` 中显式注册手写 Typert manifest 提供严格 codec（不依赖 `typert-loader` 的包缓存）。
 浏览器从不传入路径。
 
 写入使用同目录临时文件加 rename；删除文件表示恢复全局默认。
