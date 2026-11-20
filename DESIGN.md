@@ -54,4 +54,6 @@ Client 通过手写 Typert contribution 挂载同名 Remote namespace；`./typer
 
 - 工作区文件不做文件监听；缓存值在下次打开菜单或重载 DSH 时刷新。
 - 定时任务、子 Agent 与命令行路径不经过 Client 的 `sessions.create`，不在范围内。
-- 修改默认值不会同步已有的空白会话；它仍恢复日志里记录的 preset。
+- 保存默认值时会同步“当前保留且未开始”的空白会话：找到 `blank` 且 `cwd` 等于该工作区、
+  Client 仍持有 Agent scope 的会话，调用 `agentPresets.select`。
+  已开始或不再保留的会话保持日志里记录的组合。

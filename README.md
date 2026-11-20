@@ -26,8 +26,8 @@ Existing Sessions keep the composition they already run.
   under the global default instead.
 - The default applies to Sessions created through the Web Client.
   Schedules and subagents carry their own presets and are not affected.
-- Changing the default does not rewrite existing blank Sessions; a blank Session still restores the preset recorded
-  in its log.
+- The retained blank Session of that Workspace switches to the new default immediately.
+  A blank Session that is no longer retained keeps the preset recorded in its log.
 
 ## Install
 

@@ -37,11 +37,19 @@ function fakeContext({ stored = 'human-tone', roster = PRESETS } = {}) {
   const writes = []
   let mounts = 0
 
+  const selected = []
   const sessions = {
     async create(options = {}) {
       created.push({ ...options })
       return 'session-1'
     },
+    list: {
+      getSnapshot: () => ({
+        ids: ['blank-1'],
+        byId: { 'blank-1': { blank: true, cwd: '/tmp/ws-1' } },
+      }),
+    },
+    scope: id => (id === 'blank-1' ? {} : undefined),
   }
   sessions.create = sessions.create.bind(sessions)
 
@@ -93,6 +101,10 @@ function fakeContext({ stored = 'human-tone', roster = PRESETS } = {}) {
         async list() {
           return { ok: true, value: { presets: roster } }
         },
+        async select(sessionId, agentPreset) {
+          selected.push({ sessionId, agentPreset })
+          return { ok: true, value: agentPreset }
+        },
       },
     },
     contextMenus: {
@@ -108,6 +120,7 @@ function fakeContext({ stored = 'human-tone', roster = PRESETS } = {}) {
     created,
     writes,
     reads,
+    selected,
     menus,
     notices,
     mounts: () => mounts,
@@ -195,6 +208,7 @@ test('workspace menu lists presets and writes the chosen default', async () => {
   assert.equal(human.label, 'Human tone')
   await human.run()
   assert.deepEqual(ctx.writes, [{ workspaceId: 'ws-1', agentPreset: 'human-tone' }])
+  assert.deepEqual(ctx.selected, [{ sessionId: 'blank-1', agentPreset: 'human-tone' }])
   assert.equal(ctx.notices.at(-1).success, true)
   assert.match(ctx.notices.at(-1).text, /Human tone/)
 
@@ -203,6 +217,7 @@ test('workspace menu lists presets and writes the chosen default', async () => {
   assert.match(current.label, /✓/)
   await refreshed[0].children[0].run()
   assert.deepEqual(ctx.writes.at(-1), { workspaceId: 'ws-1', agentPreset: null })
+  assert.deepEqual(ctx.selected.at(-1), { sessionId: 'blank-1', agentPreset: 'standard' })
   for (const dispose of ctx.effects) dispose()
 })
 

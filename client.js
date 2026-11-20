@@ -300,12 +300,40 @@ window.__ModuleLoader__.load({
 
         const nameOf = preset => preset?.name ?? preset?.id ?? ''
 
-        const save = async (target, presetId, label) => {
+        /**
+         * Move the retained blank Session of this Workspace onto the new
+         * default. The Host only accepts a preset while a Session is blank, so
+         * a started Session keeps its recorded composition.
+         * @param target - clicked Workspace.
+         * @param presetId - new Workspace default, or null for the global one.
+         * @param globalId - Host-effective global default id, when known.
+         */
+        const syncBlank = async (target, presetId, globalId) => {
+          const desired = presetId ?? globalId
+          if (desired === undefined) return
+          const sessions = ctx.get('sessions')
+          const list = sessions.list?.getSnapshot?.()
+          if (list === undefined) return
+          const candidate = list.ids.find((id) => {
+            const summary = list.byId[id]
+            return summary?.blank === true && summary.cwd === target.path && sessions.scope?.(id) !== undefined
+          })
+          if (candidate === undefined) return
+          try {
+            const result = await ctx.remote.agentPresets.select(candidate, desired)
+            if (!result.ok) warnOnce('sync-blank', result.error)
+          } catch (error) {
+            warnOnce('sync-blank', error)
+          }
+        }
+
+        const save = async (target, presetId, label, globalId) => {
           const service = await namespace()
           if (service === undefined) throw new Error(t('menuUnavailable'))
           const result = await service.write(target.workspaceId, presetId)
           if (!result.ok) throw new Error(result.error?.message ?? t('noticeFailed'))
           defaults.set(target.workspaceId, result.value.agentPreset)
+          await syncBlank(target, presetId, globalId)
           ctx.contextMenus.notify(
             presetId === null ? t('noticeGlobal') : t('noticeSaved', { preset: label ?? presetId }),
             true,
@@ -351,14 +379,14 @@ window.__ModuleLoader__.load({
                   label: t('menuGlobal', { preset: global !== undefined ? nameOf(global) : t('menuHostDefault') }),
                   ...(current === null ? { disabled: true } : {}),
                   failureLabel: t('failure'),
-                  run: () => save(target, null, undefined),
+                  run: () => save(target, null, undefined, global?.id),
                 },
                 ...presets.map((preset, index) => ({
                   id: 'preset:' + preset.id,
                   label: nameOf(preset) + (current === preset.id ? ' ✓' : ''),
                   ...(index === 0 ? { separatorBefore: true } : {}),
                   failureLabel: t('failure'),
-                  run: () => save(target, preset.id, nameOf(preset)),
+                  run: () => save(target, preset.id, nameOf(preset), global?.id),
                 })),
               ],
             }]
