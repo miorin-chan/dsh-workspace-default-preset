@@ -345,21 +345,22 @@ window.__ModuleLoader__.load({
           target: 'workspace',
           order: MENU_ORDER,
           resolve: async (target, signal) => {
+            const unavailable = () => [{ id: 'unavailable', label: t('menuUnavailable'), disabled: true }]
             const service = await namespace()
-            if (service === undefined) return []
+            if (service === undefined) return unavailable()
             let presets
             try {
               const roster = await ctx.remote.agentPresets.list()
               if (!roster.ok) {
                 warnOnce('roster', roster.error)
-                return []
+                return unavailable()
               }
               presets = roster.value.presets
               if (signal.aborted) return []
               await presetOf(target.workspaceId, { fresh: true })
             } catch (error) {
               warnOnce('resolve', error)
-              return []
+              return unavailable()
             }
             if (signal.aborted) return []
             const current = defaults.get(target.workspaceId) ?? null
