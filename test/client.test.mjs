@@ -20,18 +20,30 @@ const translate = (dictionary) => (key, values = {}) =>
   String(dictionary[key] ?? key).replace(/\{(\w+)\}/g, (_, name) => String(values[name] ?? `{${name}}`))
 
 const PRESETS = [
-  { id: 'standard', name: 'Standard', isDefault: true },
+  { id: 'standard', isDefault: true },
   { id: 'human-tone', name: 'Human tone', isDefault: false },
   { id: 'cordis' },
 ]
+
+/** Copy `ui-agent-preset` publishes for shipped presets, keyed as its namespace. */
+const DISPLAY_DICTIONARY = {
+  en: {
+    presetStandardName: 'Standard mode',
+    presetPtcName: 'PTC mode',
+    presetMinimalName: 'Minimal mode',
+    presetCordisName: 'Creator mode',
+  },
+}
 
 /**
  * A minimal Client host: recorded effects, a locale service, a mounted Remote
  * namespace, the Session and Workspace services, and a context menu registry.
  */
-function fakeContext({ stored = 'human-tone', roster = PRESETS } = {}) {
+function fakeContext({ stored = 'human-tone', roster = PRESETS, display = true } = {}) {
   const effects = []
   const namespaces = new Map()
+  if (display) namespaces.set('settings.agentPreset', DISPLAY_DICTIONARY)
+  const icons = []
   const menus = []
   const notices = []
   const created = []
@@ -88,7 +100,7 @@ function fakeContext({ stored = 'human-tone', roster = PRESETS } = {}) {
       },
       bind(namespace) {
         const dictionaries = namespaces.get(namespace)
-        return translate(dictionaries.en)
+        return dictionaries === undefined ? translate({}) : translate(dictionaries.en)
       },
     },
     remote: {
@@ -108,6 +120,16 @@ function fakeContext({ stored = 'human-tone', roster = PRESETS } = {}) {
         },
       },
     },
+    slots: {
+      inject(key, callback) {
+        assert.equal(key, 'contextMenu.icon')
+        return callback()
+      },
+      register(options) {
+        icons.push(options)
+        return () => undefined
+      },
+    },
     contextMenus: {
       register(contribution) {
         menus.push(contribution)
@@ -122,6 +144,7 @@ function fakeContext({ stored = 'human-tone', roster = PRESETS } = {}) {
     writes,
     reads,
     selected,
+    icons,
     menus,
     notices,
     mounts: () => mounts,
@@ -141,7 +164,7 @@ const menuContribution = context => context.menus.find(entry => entry.id === 'wo
 const workspaceTarget = { workspaceId: 'ws-1', path: '/tmp/ws-1', displayTitle: 'ws-1' }
 
 test('declares the services it injects', () => {
-  assert.deepEqual(plugin.inject, ['locale', 'contextMenus', 'remote', 'remote.agentPresets', 'sessions', 'workspaces'])
+  assert.deepEqual(plugin.inject, ['locale', 'contextMenus', 'slots', 'remote', 'remote.agentPresets', 'sessions', 'workspaces'])
 })
 
 test('registers eight locales and releases them on unload', async () => {
@@ -201,11 +224,15 @@ test('workspace menu lists presets and writes the chosen default', async () => {
   const actions = await contribution.resolve(workspaceTarget, new AbortController().signal)
   assert.equal(actions.length, 1)
   const [parent] = actions
-  assert.equal(parent.label, 'Default preset')
+  assert.equal(parent.label, 'Default preset: Global default')
   assert.equal(parent.children.length, PRESETS.length + 1)
-  assert.equal(parent.children[0].label, 'Global default')
-  assert.equal(parent.children.find(child => child.id === 'preset:cordis').label, 'Creator')
+  assert.equal(parent.children[0].label, 'Use global default (Standard mode)')
+  assert.equal(parent.children.find(child => child.id === 'preset:cordis').label, 'Creator mode')
   assert.equal(parent.children[0].disabled, true, 'the global action is disabled while no workspace default is set')
+  for (const child of parent.children) {
+    assert.deepEqual(child.icon, { key: 'dsh-workspace-agent-preset.preset' })
+  }
+  assert.deepEqual(ctx.icons, [{ name: 'contextMenu.icon', key: 'dsh-workspace-agent-preset.preset' }])
 
   const human = parent.children.find(child => child.id === 'preset:human-tone')
   assert.equal(human.label, 'Human tone')
@@ -216,11 +243,23 @@ test('workspace menu lists presets and writes the chosen default', async () => {
   assert.match(ctx.notices.at(-1).text, /Human tone/)
 
   const refreshed = await contribution.resolve(workspaceTarget, new AbortController().signal)
+  assert.equal(refreshed[0].label, 'Default preset: Human tone')
   const current = refreshed[0].children.find(child => child.id === 'preset:human-tone')
   assert.match(current.label, /✓/)
   await refreshed[0].children[0].run()
   assert.deepEqual(ctx.writes.at(-1), { workspaceId: 'ws-1', agentPreset: null })
   assert.deepEqual(ctx.selected.at(-1), { sessionId: 'blank-1', agentPreset: 'standard' })
+  const cleared = await contribution.resolve(workspaceTarget, new AbortController().signal)
+  assert.equal(cleared[0].label, 'Default preset: Global default')
+  for (const dispose of ctx.effects) dispose()
+})
+
+test('leaves preset ids when the display dictionary is unavailable', async () => {
+  const ctx = fakeContext({ stored: 'cordis', display: false })
+  await mount(ctx)
+  const actions = await menuContribution(ctx).resolve(workspaceTarget, new AbortController().signal)
+  assert.equal(actions[0].label, 'Default preset: cordis')
+  assert.equal(actions[0].children.find(child => child.id === 'preset:cordis').label, 'cordis ✓')
   for (const dispose of ctx.effects) dispose()
 })
 

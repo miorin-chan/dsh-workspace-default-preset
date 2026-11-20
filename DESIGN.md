@@ -37,6 +37,14 @@ Host 在 `index.js` 中显式注册手写 Typert manifest 提供严格 codec（�
 
 写入使用同目录临时文件加 rename；删除文件表示恢复全局默认。
 
+### 菜单呈现
+
+子菜单标题显示当前生效的选择：工作区默认的名称；未设置时显示“全局默认”。
+preset 行沿用 DSH 的显示规则：内置 preset 按与 `presetDisplayText` 相同的 id 到词典键映射，
+从 `settings.agentPreset` 取全名；自定义 preset 使用声明的名称。
+图标通过与 `ui-context-menu` 的 keyed slot `contextMenu.icon` 注册，所有 preset 行共用产品内置的 preset 图标。
+词典不可用时内置 preset 回退到 id，图标模块不可用时图标留空，菜单仍然可用。
+
 ### 失效与回退
 
 - 文件缺失、不可读或 JSON 无效：视为没有工作区默认。

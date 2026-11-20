@@ -12,9 +12,17 @@
  *   injects the Workspace preset only when the caller supplied none, so an
  *   explicit choice (the creator flow, a restored blank Session, another
  *   plugin) keeps precedence.
- * - The Workspace context menu gains a `默认 Agent 预设` submenu. The value is
- *   stored by the Host half in `<workspace>/.dsh/agent-preset.json` through a
+ * - The Workspace context menu gains a `默认预设` submenu. The value is stored
+ *   by the Host half in `<workspace>/.dsh/agent-preset.json` through a
  *   hand-written Remote namespace mounted below (`remote.workspaceAgentPresets`).
+ *
+ * The submenu speaks the product's own preset vocabulary: shipped presets
+ * resolve their names through the `settings.agentPreset` dictionary that
+ * ui-agent-preset registers (the shipped-id keys `presetDisplayText` uses),
+ * custom presets keep the name they published, and every row carries the preset glyph
+ * from `@deepseek-ai/dsh-client-ui-primitives` through the shared
+ * `contextMenu.icon` slot. Both are optional: an unavailable module leaves the
+ * menu working with the roster name/id and no glyph.
  *
  * Fail-safety: a missing namespace, unreadable file, or stale preset id
  * degrades to the global default. A rejected explicit preset is retried once
@@ -23,123 +31,112 @@
  * Seam: `sessions.create` is a public `ISessions` method on a plain object
  * service. The context menu target `workspace` is declared by ui-workspace
  * and resolved against `{ workspaceId, path, displayTitle }`; the menu action
- * shape is the documented `MenuContribution`. No private module is imported.
+ * shape is the documented `MenuContribution`. Only the shared Client modules
+ * `react` and `@deepseek-ai/dsh-client-ui-primitives` are required; both are
+ * optional at runtime.
  */
 window.__ModuleLoader__.load({
   id: 'dsh-workspace-agent-preset',
-  factory() {
+  factory(require) {
     const NS = 'dsh-workspace-agent-preset'
     const PACKAGE = 'dsh-workspace-agent-preset'
     const NAMESPACE = 'workspaceAgentPresets'
     const REMOTE_KEY = 'remote.' + NAMESPACE
     const MENU_ORDER = 250
+    const ICON_KEY = NS + '.preset'
+    const DISPLAY_NAMESPACE = 'settings.agentPreset'
     const PRESET_ERROR_CODES = new Set(['agent-preset/not-found', 'agent-preset/invalid'])
+
+    let React
+    let primitives
+    try { React = require('react') } catch { React = undefined }
+    try { primitives = require('@deepseek-ai/dsh-client-ui-primitives') } catch { primitives = undefined }
+    const PresetGlyph = React !== undefined
+      && typeof primitives?.IconAgentPresetOutlineRegular === 'function'
+      ? () => React.createElement(primitives.IconAgentPresetOutlineRegular, { size: 16 })
+      : () => null
 
     /** Visible text this module renders itself; plugin-meta text lives in locale/*.json. */
     const LABELS = {
       en: {
-        menuTitle: 'Default preset',
-        menuGlobal: 'Global default',
-        menuUnavailable: 'Unavailable',
-        noticeSaved: 'New sessions here use {preset}',
-        noticeGlobal: 'Workspace default cleared',
+        menuTitle: 'Default preset: {current}',
+        menuGlobal: 'Use global default ({preset})',
+        menuGlobalPlain: 'Global default',
+        menuUnavailable: 'No agent presets are available',
+        noticeSaved: 'New sessions in this workspace use {preset}',
+        noticeGlobal: 'Workspace default cleared; new sessions use the global default',
         noticeFailed: 'Could not save the workspace default',
         failure: 'Reopen the workspace menu to try again',
-        presetStandard: 'Standard',
-        presetPtc: 'PTC',
-        presetMinimal: 'Minimal',
-        presetCordis: 'Creator',
       },
       zh: {
-        menuTitle: '默认预设',
-        menuGlobal: '全局默认',
-        menuUnavailable: '暂不可用',
-        noticeSaved: '该工作区的新会话使用「{preset}」',
-        noticeGlobal: '已清除工作区默认',
+        menuTitle: '默认预设：{current}',
+        menuGlobal: '使用全局默认（{preset}）',
+        menuGlobalPlain: '全局默认',
+        menuUnavailable: '当前没有可用的 Agent 预设',
+        noticeSaved: '该工作区的新会话将使用「{preset}」',
+        noticeGlobal: '已清除工作区默认；新会话使用全局默认',
         noticeFailed: '无法保存工作区默认值',
         failure: '请从工作区菜单重试',
-        presetStandard: '标准',
-        presetPtc: 'PTC',
-        presetMinimal: '极简',
-        presetCordis: '创造',
       },
       ja: {
-        menuTitle: '既定のプリセット',
-        menuGlobal: 'グローバル既定値',
-        menuUnavailable: '利用不可',
+        menuTitle: '既定のプリセット: {current}',
+        menuGlobal: 'グローバル既定値を使用 ({preset})',
+        menuGlobalPlain: 'グローバル既定値',
+        menuUnavailable: '利用できる Agent プリセットがありません',
         noticeSaved: 'このワークスペースの新規セッションは {preset} を使用します',
-        noticeGlobal: 'ワークスペース既定値を解除しました',
+        noticeGlobal: 'ワークスペース既定値を解除しました。新規セッションはグローバル既定値を使用します',
         noticeFailed: 'ワークスペース既定値を保存できませんでした',
         failure: 'ワークスペースメニューから再試行してください',
-        presetStandard: '標準',
-        presetPtc: 'PTC',
-        presetMinimal: '最小',
-        presetCordis: 'クリエイター',
       },
       de: {
-        menuTitle: 'Standard-Preset',
-        menuGlobal: 'Globaler Standard',
-        menuUnavailable: 'Nicht verfügbar',
-        noticeSaved: 'Neue Sitzungen hier verwenden {preset}',
-        noticeGlobal: 'Arbeitsbereichsstandard entfernt',
+        menuTitle: 'Standard-Preset: {current}',
+        menuGlobal: 'Globalen Standard verwenden ({preset})',
+        menuGlobalPlain: 'Globaler Standard',
+        menuUnavailable: 'Keine Agent-Presets verfügbar',
+        noticeSaved: 'Neue Sitzungen in diesem Arbeitsbereich verwenden {preset}',
+        noticeGlobal: 'Arbeitsbereichsstandard entfernt; neue Sitzungen verwenden den globalen Standard',
         noticeFailed: 'Der Arbeitsbereichsstandard konnte nicht gespeichert werden',
         failure: 'Öffnen Sie das Arbeitsbereichsmenü erneut',
-        presetStandard: 'Standard',
-        presetPtc: 'PTC',
-        presetMinimal: 'Minimal',
-        presetCordis: 'Ersteller',
       },
       es: {
-        menuTitle: 'Preset predeterminado',
-        menuGlobal: 'Predeterminado global',
-        menuUnavailable: 'No disponible',
-        noticeSaved: 'Las sesiones nuevas aquí usan {preset}',
-        noticeGlobal: 'Predeterminado del espacio de trabajo borrado',
+        menuTitle: 'Preset predeterminado: {current}',
+        menuGlobal: 'Usar el predeterminado global ({preset})',
+        menuGlobalPlain: 'Predeterminado global',
+        menuUnavailable: 'No hay presets de agente disponibles',
+        noticeSaved: 'Las sesiones nuevas de este espacio de trabajo usan {preset}',
+        noticeGlobal: 'Predeterminado del espacio de trabajo borrado; las sesiones nuevas usan el global',
         noticeFailed: 'No se pudo guardar el predeterminado del espacio de trabajo',
         failure: 'Vuelve a abrir el menú del espacio de trabajo',
-        presetStandard: 'Estándar',
-        presetPtc: 'PTC',
-        presetMinimal: 'Mínimo',
-        presetCordis: 'Creador',
       },
       fr: {
-        menuTitle: 'Preset par défaut',
-        menuGlobal: 'Valeur globale',
-        menuUnavailable: 'Indisponible',
-        noticeSaved: 'Les nouvelles sessions ici utilisent {preset}',
-        noticeGlobal: 'Valeur par défaut de l’espace de travail effacée',
-        noticeFailed: 'Impossible d’enregistrer la valeur par défaut',
+        menuTitle: 'Preset par défaut : {current}',
+        menuGlobal: 'Utiliser la valeur globale ({preset})',
+        menuGlobalPlain: 'Valeur globale',
+        menuUnavailable: 'Aucun preset d’agent disponible',
+        noticeSaved: 'Les nouvelles sessions de cet espace de travail utilisent {preset}',
+        noticeGlobal: 'Valeur par défaut de l’espace de travail effacée ; les nouvelles sessions utilisent la valeur globale',
+        noticeFailed: 'Impossible d’enregistrer la valeur par défaut de l’espace de travail',
         failure: 'Rouvrez le menu de l’espace de travail',
-        presetStandard: 'Standard',
-        presetPtc: 'PTC',
-        presetMinimal: 'Minimal',
-        presetCordis: 'Créateur',
       },
       pt: {
-        menuTitle: 'Preset padrão',
-        menuGlobal: 'Padrão global',
-        menuUnavailable: 'Indisponível',
-        noticeSaved: 'Novas sessões aqui usam {preset}',
-        noticeGlobal: 'Padrão do espaço de trabalho removido',
-        noticeFailed: 'Não foi possível salvar o padrão',
+        menuTitle: 'Preset padrão: {current}',
+        menuGlobal: 'Usar o padrão global ({preset})',
+        menuGlobalPlain: 'Padrão global',
+        menuUnavailable: 'Nenhum preset de agente disponível',
+        noticeSaved: 'Novas sessões neste espaço de trabalho usam {preset}',
+        noticeGlobal: 'Padrão do espaço de trabalho removido; novas sessões usam o global',
+        noticeFailed: 'Não foi possível salvar o padrão do espaço de trabalho',
         failure: 'Abra novamente o menu do espaço de trabalho',
-        presetStandard: 'Padrão',
-        presetPtc: 'PTC',
-        presetMinimal: 'Mínimo',
-        presetCordis: 'Criador',
       },
       ru: {
-        menuTitle: 'Пресет по умолчанию',
-        menuGlobal: 'Глобальный по умолчанию',
-        menuUnavailable: 'Недоступно',
-        noticeSaved: 'Новые сеансы здесь используют {preset}',
-        noticeGlobal: 'Значение рабочего пространства сброшено',
-        noticeFailed: 'Не удалось сохранить значение',
+        menuTitle: 'Пресет по умолчанию: {current}',
+        menuGlobal: 'Использовать глобальный ({preset})',
+        menuGlobalPlain: 'Глобальный по умолчанию',
+        menuUnavailable: 'Нет доступных пресетов агента',
+        noticeSaved: 'Новые сеансы в этом рабочем пространстве используют {preset}',
+        noticeGlobal: 'Значение рабочего пространства сброшено; новые сеансы используют глобальное',
+        noticeFailed: 'Не удалось сохранить значение рабочего пространства',
         failure: 'Откройте меню рабочего пространства ещё раз',
-        presetStandard: 'Стандарт',
-        presetPtc: 'PTC',
-        presetMinimal: 'Минимал',
-        presetCordis: 'Создатель',
       },
     }
 
@@ -230,10 +227,18 @@ window.__ModuleLoader__.load({
     }
 
     return {
-      inject: ['locale', 'contextMenus', 'remote', 'remote.agentPresets', 'sessions', 'workspaces'],
+      inject: ['locale', 'contextMenus', 'slots', 'remote', 'remote.agentPresets', 'sessions', 'workspaces'],
       apply(ctx) {
         ctx.effect(() => ctx.locale.register(NS, LABELS), `${NS}: locale`)
         const t = ctx.locale.bind(NS)
+        /** Display copy owned by ui-agent-preset; absent when that plugin is off. */
+        const displayT = (() => {
+          try { return ctx.locale.bind(DISPLAY_NAMESPACE) } catch { return undefined }
+        })()
+        ctx.effect(() => ctx.slots.inject('contextMenu.icon', () => ctx.slots.register({
+          name: 'contextMenu.icon',
+          key: ICON_KEY,
+        }, PresetGlyph)), `${NS}: preset icon`)
         const warned = new Set()
         const warnOnce = (topic, detail) => {
           if (warned.has(topic)) return
@@ -316,17 +321,23 @@ window.__ModuleLoader__.load({
           if (sessions.create === patchedCreate) sessions.create = originalCreate
         }, `${NS}: sessions.create`)
 
+        /**
+         * Mirror the registry's `presetDisplayText` fold: shipped presets
+         * publish no name and take the product dictionary, custom presets keep
+         * the name they published, and an unavailable dictionary leaves the id.
+         */
         const BUILT_IN_NAME_KEYS = {
-          standard: 'presetStandard',
-          ptc: 'presetPtc',
-          minimal: 'presetMinimal',
-          cordis: 'presetCordis',
+          standard: 'presetStandardName',
+          ptc: 'presetPtcName',
+          minimal: 'presetMinimalName',
+          cordis: 'presetCordisName',
         }
-        const nameOf = (preset) => {
-          if (preset === undefined) return ''
-          const key = preset.name === undefined ? BUILT_IN_NAME_KEYS[preset.id] : undefined
-          if (key !== undefined) return t(key)
-          return preset.name ?? preset.id
+        const displayName = (preset) => {
+          if (preset === undefined) return undefined
+          if (preset.name !== undefined) return preset.name
+          const key = BUILT_IN_NAME_KEYS[preset.id]
+          const localized = key === undefined ? undefined : displayT?.(key)
+          return localized === undefined || localized === key ? preset.id : localized
         }
 
         /**
@@ -403,23 +414,28 @@ window.__ModuleLoader__.load({
             if (current !== null && known === undefined) {
               warnOnce('missing:' + target.workspaceId, `preset "${current}" is no longer declared`)
             }
+            const currentName = current === null
+              ? t('menuGlobalPlain')
+              : (displayName(known) ?? current)
             return [{
               id: 'default',
-              label: t('menuTitle'),
+              label: t('menuTitle', { current: currentName }),
               children: [
                 {
                   id: 'global',
-                  label: t('menuGlobal'),
+                  label: global === undefined ? t('menuGlobalPlain') : t('menuGlobal', { preset: displayName(global) }),
+                  icon: { key: ICON_KEY },
                   ...(current === null ? { disabled: true } : {}),
                   failureLabel: t('failure'),
                   run: () => save(target, null, undefined, global?.id),
                 },
                 ...presets.map((preset, index) => ({
                   id: 'preset:' + preset.id,
-                  label: nameOf(preset) + (current === preset.id ? ' ✓' : ''),
+                  label: displayName(preset) + (current === preset.id ? ' ✓' : ''),
+                  icon: { key: ICON_KEY },
                   ...(index === 0 ? { separatorBefore: true } : {}),
                   failureLabel: t('failure'),
-                  run: () => save(target, preset.id, nameOf(preset), global?.id),
+                  run: () => save(target, preset.id, displayName(preset), global?.id),
                 })),
               ],
             }]

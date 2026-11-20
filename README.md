@@ -3,16 +3,17 @@
 [简体中文](README.zh.md)
 
 Gives each Workspace its own default Agent preset.
-Right-click a Workspace in the sidebar, open **Default preset**, and pick a preset or **Global default**.
+Right-click a Workspace in the sidebar, open **Default preset**, and pick a preset or **Use global default**.
 The choice is stored in `<workspace>/.dsh/agent-preset.json`, and new Sessions in that Workspace start with it.
 
 Requires DeepSeek Harness 0.2.2-rc.3 or newer.
 
 ## Use
 
-The submenu marks the effective choice with `✓`.
+The submenu title names the effective choice, and every preset row carries the product's preset icon.
+The current choice also carries `✓`.
 Selecting a preset writes the Workspace file and confirms with a toast.
-**Global default** removes the file; new Sessions then follow the installation-wide default again.
+**Use global default** removes the file; new Sessions then follow the installation-wide default again.
 
 Precedence is: an explicit preset chosen for the Session (the creator flow, a restored blank Session,
 another plugin) > the Workspace default > the global default.

@@ -7,3 +7,5 @@
   explicit presets keep precedence and stale ids fall back to the global default.
 - Add a **Default preset** submenu to the Workspace context menu;
   saving also switches the Workspace's retained blank Session.
+- Show the effective choice in the submenu title and use the product's localized preset names
+  and preset icon for its rows.
