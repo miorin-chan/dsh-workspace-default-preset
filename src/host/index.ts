@@ -1,5 +1,5 @@
 /**
- * Host half of `dsh-workspace-agent-preset`.
+ * Host half of `dsh-workspace-default-preset`.
  *
  * Provides `ctx.workspaceAgentPresets` beside the durable Workspace registry
  * and registers the matching Typert manifest explicitly. The manifest is

@@ -1,5 +1,5 @@
 /**
- * Host-side Typert manifest for `dsh-workspace-agent-preset`.
+ * Host-side Typert manifest for `dsh-workspace-default-preset`.
  *
  * Hand-written in the shape the generator emits: `typert-loader` imports this
  * module from the package's `./typert` export and registers the invocation
@@ -12,7 +12,7 @@
  * what this bundle's registry call consumes.
  */
 
-const PACKAGE = 'dsh-workspace-agent-preset'
+const PACKAGE = 'dsh-workspace-default-preset'
 
 /** Strict boundary codec carried by one parameter or result. Internal shape, verified against 0.2.2-rc.5. */
 interface StrictCodec<Value = unknown> {

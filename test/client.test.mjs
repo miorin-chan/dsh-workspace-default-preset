@@ -12,7 +12,7 @@ globalThis.window = {
 }
 await import('../client.js')
 
-assert.equal(registration.id, 'dsh-workspace-agent-preset')
+assert.equal(registration.id, 'dsh-workspace-default-preset')
 const plugin = registration.factory()
 
 /** Read `{name}` placeholders the way the shared locale formatter does. */
@@ -106,7 +106,7 @@ function fakeContext({ stored = 'human-tone', roster = PRESETS, display = true }
     remote: {
       async $mount(contribution) {
         mounts += 1
-        assert.equal(contribution.package, 'dsh-workspace-agent-preset')
+        assert.equal(contribution.package, 'dsh-workspace-default-preset')
         namespaces.set('remote.workspaceAgentPresets', api)
         return () => namespaces.delete('remote.workspaceAgentPresets')
       },
@@ -170,7 +170,7 @@ test('declares the services it injects', () => {
 test('registers eight locales and releases them on unload', async () => {
   const ctx = fakeContext()
   await mount(ctx)
-  const labels = ctx.locale.bind('dsh-workspace-agent-preset')
+  const labels = ctx.locale.bind('dsh-workspace-default-preset')
   for (const language of ['en', 'zh', 'ja', 'de', 'es', 'fr', 'pt', 'ru']) {
     assert.ok(labels(`missing-${language}`), 'bind returns a translator')
   }
@@ -230,10 +230,10 @@ test('workspace menu lists presets and writes the chosen default', async () => {
   assert.equal(parent.children.find(child => child.id === 'preset:cordis').label, 'Creator mode')
   assert.equal(parent.children[0].disabled, true, 'the global action is disabled while no workspace default is set')
   for (const child of parent.children) {
-    assert.deepEqual(child.icon, { key: 'dsh-workspace-agent-preset.preset' })
+    assert.deepEqual(child.icon, { key: 'dsh-workspace-default-preset.preset' })
   }
-  assert.deepEqual(parent.icon, { key: 'dsh-workspace-agent-preset.preset' })
-  assert.deepEqual(ctx.icons, [{ name: 'contextMenu.icon', key: 'dsh-workspace-agent-preset.preset' }])
+  assert.deepEqual(parent.icon, { key: 'dsh-workspace-default-preset.preset' })
+  assert.deepEqual(ctx.icons, [{ name: 'contextMenu.icon', key: 'dsh-workspace-default-preset.preset' }])
 
   const human = parent.children.find(child => child.id === 'preset:human-tone')
   assert.equal(human.label, 'Human tone')

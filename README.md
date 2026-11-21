@@ -1,45 +1,29 @@
-# dsh-workspace-agent-preset
+# dsh-workspace-default-preset
 
 [简体中文](README.zh.md)
 
-Gives each Workspace its own default Agent preset.
+**One default Agent preset per Workspace.**
+
 Right-click a Workspace in the sidebar, open **Default**, and pick a preset or **Use global default**.
-The choice is stored in `<workspace>/.dsh/agent-preset.json`, and new Sessions in that Workspace start with it.
+The choice lives in `<workspace>/.dsh/agent-preset.json`, and new Sessions there start with it.
 
 Requires DeepSeek Harness 0.2.2-rc.3 or newer.
 
 ## Use
 
-The submenu title names the effective choice, and every preset row carries the product's preset icon.
-The current choice also carries `✓`.
-Selecting a preset writes the Workspace file and confirms with a toast.
-**Use global default** removes the file; new Sessions then follow the installation-wide default again.
-
-Precedence is: an explicit preset chosen for the Session (the creator flow, a restored blank Session,
-another plugin) > the Workspace default > the global default.
-Existing Sessions keep the composition they already run.
+- The submenu title shows the effective choice; the current row carries `✓`.
+- Picking a preset writes the file and confirms with a toast; **Use global default** removes it.
+- Precedence: an explicit Session preset > the Workspace default > the global default.
 
 ## Limits
 
-- The file is read once per Workspace and cached.
-  After editing it by hand, open the Workspace menu once (or reload DSH) to pick up the new value.
-- A preset id that no longer exists is ignored with one console warning; the Session starts
-  under the global default instead.
-- The default applies to Sessions created through the Web Client.
-  Schedules and subagents carry their own presets and are not affected.
-- The retained blank Session of that Workspace switches to the new default immediately.
-  A blank Session that is no longer retained keeps the preset recorded in its log.
+- The file is read once per Workspace and cached; reopen the menu or reload after editing it by hand.
+- A preset id that no longer exists is ignored with one console warning; the Session uses the global default.
+- Applies to Sessions created in the Web Client; schedules and subagents keep their own presets.
 
 ## Install
 
-In **Plugins** > **Add plugin**, choose this directory, or install the bundle with `plugin_manager`.
-The bundle appears as **Workspace agent defaults**.
-Disable it in **Plugins** to remove the menu and the injection again; Workspace files stay on disk.
-
-## Workspace family
-
-This bundle is part of the [`dsh-workspace-family`](../dsh-workspace-family/README.md) aggregate,
-which puts it on one **Plugins** card with the workspace picker and the workspace name in the session header.
-The aggregate inserts the same row id, so install either this bundle or the aggregate, never both.
+**Plugins** > **Add plugin**, or install this directory with `plugin_manager`.
+This bundle is part of [`dsh-workspace-atlas`](../dsh-workspace-atlas/README.md); install either one, never both.
 
 [Project documentation](docs/README.md)

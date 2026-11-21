@@ -1,5 +1,5 @@
 /**
- * Browser half of `dsh-workspace-agent-preset`.
+ * Browser half of `dsh-workspace-default-preset`.
  *
  * DSH exposes one Agent-preset default for the whole installation: the
  * registry resolves an omitted `agentPreset` to `selectedDefault`, then to the
@@ -55,8 +55,8 @@ import type {} from '@deepseek-ai/dsh-client-ui-renderer/client'
 import type {} from '@deepseek-ai/dsh-client-ui-slots'
 import type {} from '@deepseek-ai/dsh-client-ui-workspace/client'
 
-const NS = 'dsh-workspace-agent-preset'
-const PACKAGE = 'dsh-workspace-agent-preset'
+const NS = 'dsh-workspace-default-preset'
+const PACKAGE = 'dsh-workspace-default-preset'
 const NAMESPACE = 'workspaceAgentPresets'
 const REMOTE_KEY = 'remote.' + NAMESPACE
 const MENU_ORDER = 250
@@ -180,7 +180,7 @@ const LABELS: Record<BuiltInLocaleId, Record<LabelKey, string>> & Record<LocaleI
 
 declare module '@deepseek-ai/dsh-client-ui-slots' {
   interface LocaleNamespaceMap {
-    'dsh-workspace-agent-preset': LabelKey
+    'dsh-workspace-default-preset': LabelKey
   }
 }
 

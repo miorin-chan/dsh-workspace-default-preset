@@ -1,9 +1,9 @@
 {
-  "name": "dsh-workspace-agent-preset",
+  "name": "dsh-workspace-default-preset",
   "version": "0.1.0",
   "private": true,
   "license": "MIT",
-  "description": "Stores a default agent preset per workspace and starts that workspace's new sessions with it.",
+  "description": "Keep a default agent preset for each workspace.",
   "type": "module",
   "keywords": [
     "deepseek-harness",

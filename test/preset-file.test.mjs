@@ -17,7 +17,7 @@ import { createWorkspaceAgentPresetService } from '../lib/service.js'
 
 const roots = []
 const temporaryRoot = async () => {
-  const directory = await mkdtemp(join(tmpdir(), 'dsh-workspace-agent-preset-'))
+  const directory = await mkdtemp(join(tmpdir(), 'dsh-workspace-default-preset-'))
   roots.push(directory)
   return directory
 }

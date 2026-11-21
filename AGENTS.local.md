@@ -12,7 +12,7 @@ Check whether new behavior belongs in its own bundle.
 
 ## Workspace aggregate
 
-This bundle belongs to `dsh-workspace-family`. Keep its row id stable and coordinate new workspace-facing behavior
+This bundle belongs to `dsh-workspace-atlas`. Keep its row id stable and coordinate new workspace-facing behavior
 with the aggregate's `aggregate.yml` and documentation.
 The aggregate and this bundle insert the same row id, so do not install both.
 
