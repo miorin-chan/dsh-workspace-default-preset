@@ -1,4 +1,4 @@
-# dsh-workspace-default-preset
+# @miorin/dsh-workspace-default-preset
 
 [简体中文](README.zh.md)
 
@@ -24,6 +24,7 @@ Requires DeepSeek Harness 0.2.2-rc.3 or newer.
 ## Install
 
 **Plugins** > **Add plugin**, or install this directory with `plugin_manager`.
-This bundle is part of [`dsh-workspace-atlas`](../dsh-workspace-atlas/README.md); install either one, never both.
+This bundle is part of [`@miorin/dsh-workspace-atlas`](../dsh-workspace-atlas/README.md);
+install either one, never both.
 
 [Project documentation](docs/README.md)

@@ -12,7 +12,7 @@ globalThis.window = {
 }
 await import('../client.js')
 
-assert.equal(registration.id, 'dsh-workspace-default-preset')
+assert.equal(registration.id, '@miorin/dsh-workspace-default-preset')
 const plugin = registration.factory()
 
 /** Read `{name}` placeholders the way the shared locale formatter does. */

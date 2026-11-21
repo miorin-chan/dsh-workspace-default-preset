@@ -1,5 +1,5 @@
 # Activates the bundle. The Host half is inert; the Client half ships through
-# package.json `dsh.client` and carries Workspace Defaults.
+# package.json `dsh.client` and carries Workspace Default Preset.
 - insert:
-    - id: dsh-workspace-default-preset
-      name: 'dsh-workspace-default-preset'
+    - id: workspace-default-preset
+      name: '@miorin/dsh-workspace-default-preset'
