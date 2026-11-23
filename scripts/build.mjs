@@ -25,7 +25,7 @@
 
 import { createRequire } from 'node:module'
 import { existsSync } from 'node:fs'
-import { readFile, readdir, writeFile } from 'node:fs/promises'
+import { mkdir, readFile, readdir, writeFile } from 'node:fs/promises'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -178,6 +178,7 @@ for (const { file, content } of targets ?? []) {
       console.log(`${file} is up to date.`)
     }
   } else {
+    await mkdir(dirname(output), { recursive: true })
     await writeFile(output, content)
     console.log(`wrote ${file} (${(content.length / 1024).toFixed(1)} KiB)`)
   }
