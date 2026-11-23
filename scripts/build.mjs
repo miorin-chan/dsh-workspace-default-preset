@@ -10,17 +10,16 @@
  * shell's frozen table. Everything else is inlined, so the Client artifact is
  * self-contained apart from those externals.
  *
- * The private `lib/` modules are committed artifacts rather than bundle input:
- * index.js imports them by path, and `test/` loads two of them directly. The
- * template only knows the two named entries, so the module target below is this
- * plugin's extension for them.
+ * The build emits the private Host modules under `lib/` so `index.js` and
+ * `test/` can import them directly. The module target below extends the base
+ * build for these modules.
  *
  * Usage:
  *   node scripts/build.mjs           write every artifact
  *   node scripts/build.mjs --check   fail when an artifact is stale
  *
- * esbuild is a development dependency; the artifacts are committed. The
- * `--check` mode keeps a stale commit from reaching a release.
+ * The `prepare` script builds the local artifacts during dependency installation
+ * and packaging. Use `--check` to compare existing artifacts with the sources.
  */
 
 import { createRequire } from 'node:module'
@@ -47,16 +46,13 @@ const CLIENT_EXTERNAL = [
 
 const HOST_EXTERNAL = ['node:*']
 
-/**
- * Source directory of the private Host runtime modules and the committed
- * directory they are emitted to, relative to the package root.
- */
+/** Source and output directories for private Host modules, relative to the package root. */
 const MODULES = { source: 'src/lib', output: 'lib' }
 
-/** `src/host` imports `../lib/<name>.js`; the committed `index.js` imports `./lib/<name>.js`. */
+/** Rewrite `../lib/<name>.js` from `src/host` to `./lib/<name>.js` in the generated `index.js`. */
 const HOST_MODULE_IMPORT = /^\.\.\/lib\/(.+\.js)$/
 
-/** One private module imports its sibling as `./<name>.js`, which is its committed specifier too. */
+/** A private module imports its sibling as `./<name>.js` in both source and output. */
 const SIBLING_MODULE_IMPORT = /^\.\/(.+\.js)$/
 
 /** Wrap an esbuild CommonJS bundle in DSH's module-loader envelope. */
@@ -91,7 +87,7 @@ function externalLocal(path) {
   return { path, external: true }
 }
 
-/** Leave `src/host`'s `../lib/*.js` imports pointing at the committed `lib/` artifacts. */
+/** Leave `src/host`'s `../lib/*.js` imports pointing at the generated `lib/` artifacts. */
 const hostModules = {
   name: 'host-modules',
   setup(context) {
@@ -101,7 +97,7 @@ const hostModules = {
   },
 }
 
-/** Leave one private module's sibling imports as their committed specifiers. */
+/** Preserve the relative specifiers of private sibling imports. */
 const siblingModules = {
   name: 'sibling-modules',
   setup(context) {

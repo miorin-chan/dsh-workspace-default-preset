@@ -3,6 +3,9 @@ node_modules/
 .pnpm-store/
 
 # build / test artifacts
+/index.js
+/client.js
+/lib/
 coverage/
 *.tgz
 *.log
