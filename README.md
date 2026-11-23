@@ -24,7 +24,7 @@ Requires DeepSeek Harness 0.2.2-rc.3 or newer.
 ## Install
 
 **Plugins** > **Add plugin**, or install this directory with `plugin_manager`.
-This bundle is part of [`@miorin/dsh-workspace-atlas`](../dsh-workspace-atlas/README.md);
+This bundle is part of [`@miorin/dsh-atlas-workspace`](../dsh-atlas-workspace/README.md);
 install either one, never both.
 
 [Project documentation](docs/README.md)
