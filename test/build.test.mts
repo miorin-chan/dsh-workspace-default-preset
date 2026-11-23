@@ -16,16 +16,18 @@ test('build recreates the runtime entries and an absent lib directory', t => {
   t.after(() => rmSync(checkout, { recursive: true }))
 
   mkdirSync(join(checkout, 'scripts'))
-  for (const file of ['package.json', 'tsconfig.json', 'scripts/build.mjs', 'src']) {
+  for (const file of ['package.json', 'tsconfig.json', 'tsconfig.tools.json', 'scripts/build.mts', 'scripts/sync-types.mts', 'src']) {
     cpSync(new URL(file, plugin), join(checkout, file), { recursive: true })
   }
   symlinkSync(realpathSync(new URL('node_modules', plugin)), join(checkout, 'node_modules'), 'junction')
   assert.equal(existsSync(join(checkout, 'lib')), false)
+  assert.equal(existsSync(join(checkout, 'scripts/build.mjs')), false)
 
-  const result = spawnSync(process.execPath, ['scripts/build.mjs'], { cwd: checkout, encoding: 'utf8' })
+  const npm = process.platform === 'win32' ? 'npm.cmd' : 'npm'
+  const result = spawnSync(npm, ['run', 'build'], { cwd: checkout, encoding: 'utf8', shell: process.platform === 'win32' })
   assert.ifError(result.error)
-  assert.equal(result.status, 0, result.stderr)
-  for (const file of ['index.js', 'client.js', 'lib/preset-file.js', 'lib/service.js', 'lib/typert.js']) {
+  assert.equal(result.status, 0, result.stdout + result.stderr)
+  for (const file of ['scripts/build.mjs', 'index.js', 'client.js', 'lib/preset-file.js', 'lib/service.js', 'lib/typert.js']) {
     assert.ok(existsSync(join(checkout, file)), `build emits ${file}`)
   }
 })

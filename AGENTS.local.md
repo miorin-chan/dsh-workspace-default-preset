@@ -40,6 +40,9 @@ The aggregate and this bundle insert the same row id, so do not install both.
 
 ## Structure
 
+`npm run build:tools` compiles `.mts` tooling in `scripts/` to adjacent ignored `.mjs` files.
+Node.js 22.18 or newer runs the `.test.mts` files directly.
+
 - [src/client/index.ts](src/client/index.ts) is the browser half's source.
   `node scripts/build.mjs` generates `client.js`, which Git ignores.
   Read the source header before editing the TypeScript.
@@ -49,16 +52,16 @@ The aggregate and this bundle insert the same row id, so do not install both.
   [src/lib/](src/lib/) holds file storage, the service, and the hand-written Typert manifest as TypeScript sources.
   The build generates `index.js` and `lib/*.js`, which Git ignores.
   Keep the artifact filenames and import specifiers stable because the package exports and tests name them.
-- `tsconfig.json`, `scripts/build.mjs`, and `scripts/sync-types.mjs` are the TypeScript base copied
+- `tsconfig.json`, `scripts/build.mts`, and `scripts/sync-types.mts` are the TypeScript base copied
   from the workspace `tools/dsh-plugin-ts/` template.
-  `scripts/build.mjs` extends the template
+  `scripts/build.mts` extends the template
   with the private `src/lib/*.ts → lib/*.js` target the single-Host/single-Client template does not know about.
   Types appear only as `import type`; no artifact imports `@deepseek-ai/*` at runtime,
   except the optional module-table probe for `@deepseek-ai/dsh-client-ui-primitives`.
 - Keep Plugin Manager metadata in `locale/*.json` and runtime translations in `LABELS`
   in [src/client/index.ts](src/client/index.ts).
-- [test/client.test.mjs](test/client.test.mjs) uses a fake `ctx` to check the injection, menu, and cleanup;
-  [test/preset-file.test.mjs](test/preset-file.test.mjs) covers storage and the service.
+- [test/client.test.mts](test/client.test.mts) uses a fake `ctx` to check the injection, menu, and cleanup;
+  [test/preset-file.test.mts](test/preset-file.test.mts) covers storage and the service.
   Both tests load the built `client.js` and `lib/*.js`.
 - `docs/scripts/reflow` is the standalone documentation formatter and requires Python 3.11 or newer.
 
