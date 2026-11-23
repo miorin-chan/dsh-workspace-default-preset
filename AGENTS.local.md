@@ -110,7 +110,7 @@ Update `CHANGELOG.md` when releasing.
   and the pinned type-package versions in that order.
   Use `npm run build` to regenerate artifacts after editing the source.
 - After a DSH upgrade, run `node scripts/sync-types.mjs` to re-pin the type packages, then `npm run check`.
-- From the workspace root, run `node tools/new-dsh-plugin/cli.mjs --check plugins/<id>` to check the manifest,
+- From the workspace root, run `node tools/new-dsh-plugin/cli.mts --check plugins/<id>` to check the manifest,
   locale JSON, and the other scaffold files.
 - Use a disposable profile for installation tests.
   Distinguish fixture results from observations in the UI.
