@@ -3,23 +3,19 @@
  *
  *   src/host/index.ts        → index.js    ESM for the Host process
  *   src/client/index.ts(x)   → client.js   classic script for the Web module loader
- *   src/lib/*.ts             → lib/*.js    private Host runtime modules imported by index.js
+ *   src/lib/*.ts             → lib/*.js    private Host modules, when src/lib/ exists
  *
  * DSH serves one classic script per plugin; its module loader runs the wrapper
  * factory lazily and provides `react` and the seeded platform modules from the
  * shell's frozen table. Everything else is inlined, so the Client artifact is
  * self-contained apart from those externals.
  *
- * The build emits the private Host modules under `lib/` so `index.js` and
- * `test/` can import them directly. The module target below extends the base
- * build for these modules.
- *
  * Usage:
- *   node scripts/build.mjs           write every artifact
+ *   node scripts/build.mjs           write both artifacts
  *   node scripts/build.mjs --check   fail when an artifact is stale
  *
- * The `prepare` script builds the local artifacts during dependency installation
- * and packaging. Use `--check` to compare existing artifacts with the sources.
+ * esbuild is a development dependency. Git ignores the generated artifacts.
+ * `--check` catches missing or stale local output.
  */
 
 import type { BuildOptions, Plugin } from 'esbuild'
@@ -47,14 +43,19 @@ const CLIENT_EXTERNAL = [
 
 const HOST_EXTERNAL = ['node:*']
 
-/** Source and output directories for private Host modules, relative to the package root. */
-const MODULES = { source: 'src/lib', output: 'lib' }
-
-/** Rewrite `../lib/<name>.js` from `src/host` to `./lib/<name>.js` in the generated `index.js`. */
+/** `src/host` imports `../lib/<name>.js`; the built `index.js` imports `./lib/<name>.js`. */
 const HOST_MODULE_IMPORT = /^\.\.\/lib\/(.+\.js)$/
 
-/** A private module imports its sibling as `./<name>.js` in both source and output. */
-const SIBLING_MODULE_IMPORT = /^\.\/(.+\.js)$/
+/** Keep the Host entry's private-module imports pointing at the built `lib/` modules. */
+const hostModules: Plugin = {
+  name: 'host-modules',
+  setup(context) {
+    context.onResolve({ filter: HOST_MODULE_IMPORT }, (args) => ({
+      path: args.path.replace(HOST_MODULE_IMPORT, './lib/$1'),
+      external: true,
+    }))
+  },
+}
 
 /** Wrap an esbuild CommonJS bundle in DSH's module-loader envelope. */
 function envelope(code: string) {
@@ -80,30 +81,42 @@ function entryOf(candidates: string[]) {
   return candidates.map((name) => resolve(ROOT, name)).find((path) => existsSync(path))
 }
 
+/** Every `.ts` source under `dir`, as `/`-joined paths relative to it, sorted. */
+async function sourcesOf(dir: string) {
+  const found: string[] = []
+  async function walk(prefix: string) {
+    const entries = await readdir(resolve(dir, prefix), { withFileTypes: true })
+    for (const entry of entries) {
+      const path = prefix === '' ? entry.name : `${prefix}/${entry.name}`
+      if (entry.isDirectory()) {
+        await walk(path)
+      } else if (entry.name.endsWith('.ts') && !entry.name.endsWith('.d.ts')) {
+        found.push(path)
+      }
+    }
+  }
+  await walk('')
+  return found.sort()
+}
+
 /**
- * Keep one local import as a runtime import instead of inlining it.
- * @param path - the import specifier written into the artifact.
+ * Compile one module on its own, leaving every import specifier untouched.
+ * Private modules keep their `./sibling.js` imports because the emitted tree
+ * mirrors the source tree and the artifacts run from `lib/`.
  */
-function externalLocal(path: string) {
-  return { path, external: true }
-}
-
-/** Leave `src/host`'s `../lib/*.js` imports pointing at the generated `lib/` artifacts. */
-const hostModules: Plugin = {
-  name: 'host-modules',
-  setup(context) {
-    context.onResolve({ filter: HOST_MODULE_IMPORT }, (args) => externalLocal(
-      args.path.replace(HOST_MODULE_IMPORT, `./${MODULES.output}/$1`),
-    ))
-  },
-}
-
-/** Preserve the relative specifiers of private sibling imports. */
-const siblingModules: Plugin = {
-  name: 'sibling-modules',
-  setup(context) {
-    context.onResolve({ filter: SIBLING_MODULE_IMPORT }, (args) => externalLocal(args.path))
-  },
+async function compileModule(entry: string, options: BuildOptions, banner: string) {
+  const result = await build({
+    entryPoints: [entry],
+    bundle: false,
+    write: false,
+    banner: { js: banner },
+    legalComments: 'none',
+    logLevel: 'warning',
+    ...options,
+  })
+  const file = result.outputFiles?.[0]
+  if (!file) throw new Error(`No JavaScript output for ${entry}`)
+  return file.text
 }
 
 async function compile(entry: string, options: BuildOptions, banner: string) {
@@ -143,20 +156,16 @@ if (clientEntry !== undefined) {
   targets.push({ file: 'client.js', content: envelope(code) })
 }
 
-const moduleDir = resolve(ROOT, MODULES.source)
+// Private Host modules stay separate artifacts: tests and the published package
+// import `lib/<name>.js` directly, so the Host bundle must not inline them away.
+// The `hostModules` plugin above keeps the Host entry's `../lib/<name>.js`
+// imports pointing at the emitted modules.
+const moduleDir = resolve(ROOT, 'src/lib')
 if (existsSync(moduleDir)) {
-  const names = (await readdir(moduleDir))
-    .filter((name) => name.endsWith('.ts') && !name.endsWith('.d.ts'))
-    .sort()
-  for (const name of names) {
-    const banner = `/** ${pkg.name} host runtime module. Generated by scripts/build.mjs from ${MODULES.source}/; do not edit by hand. */`
-    const code = await compile(resolve(moduleDir, name), {
-      format: 'esm',
-      platform: 'node',
-      external: HOST_EXTERNAL,
-      plugins: [siblingModules],
-    }, banner)
-    targets.push({ file: `${MODULES.output}/${name.replace(/\.ts$/, '.js')}`, content: code })
+  for (const path of await sourcesOf(moduleDir)) {
+    const banner = `/** ${pkg.name} host runtime module. Generated by scripts/build.mjs from src/lib/; do not edit by hand. */`
+    const code = await compileModule(resolve(moduleDir, path), { format: 'esm', platform: 'node', target: 'es2022' }, banner)
+    targets.push({ file: `lib/${path.replace(/\.ts$/, '.js')}`, content: code })
   }
 }
 
