@@ -1,6 +1,6 @@
 {
   "name": "@miorin/dsh-workspace-default-preset",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "license": "MIT",
   "description": "Keep a default agent preset for each workspace.",
   "type": "module",
@@ -90,5 +90,13 @@
   },
   "publishConfig": {
     "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/miorin-chan/dsh-workspace-default-preset.git"
+  },
+  "homepage": "https://github.com/miorin-chan/dsh-workspace-default-preset#readme",
+  "bugs": {
+    "url": "https://github.com/miorin-chan/dsh-workspace-default-preset/issues"
   }
 }
