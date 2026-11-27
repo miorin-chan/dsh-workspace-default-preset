@@ -1,70 +1,33 @@
-# 设计：工作区默认预设
+# 工作区默认预设产品设计
 
-## 背景
+## 要解决的问题
 
-DSH 的 Agent preset 默认值只有一层：`agent-preset-registry` 用 `selectedDefault ?? default` 解析被省略的 `agentPreset`。
-Web Client 的新会话流程（`uiWorkspace.startSession` / `openWorkspace` / `connectWorkspace`）本来就把
-`agentPreset` 当作可选参数传给 Host，因此“按工作区默认”不需要改 Host 的解析顺序，只需要在请求离开 Client 之前补上值。
+DSH 原生只维护全局默认 Agent 预设，不同工作区却常对应不同任务流（例如研发仓库用代码预设、
+文档仓库用精简预设或阅读预设）。
+用户每次在工作区新建会话都要手动改选预设，容易遗漏或选错组合。
+插件允许为每个工作区指定默认预设，让该工作区的新会话直接按工作区偏好起步。
 
-## 机制
+## 目标体验与边界
 
-### 单一注入点
+- **设置与呈现**：右键侧栏工作区打开 **默认** 子菜单，标题展示当前生效的工作区默认预设名称，
+  未设置时显示「全局默认」，当前选中项带 `✓`。
+  选择具体预设后保存，选择 **使用全局默认** 则清除设置。
+- **优先级与同步范围**：创建新会话时的解析顺序为「显式指定 preset > 工作区默认 > 全局默认」；
+  调用方或用户显式选择的预设永不被覆盖。
+  保存工作区默认值时同步更新该工作区下仍处于未开始状态的空白会话，已有历史会话不因默认值改变而切换组合。
+- **失败安全与范围边界**：默认配置文件缺失、损坏、格式无效或记录了已不存在的预设 ID 时，
+  静默回退到全局默认且不向打开会话的界面抛错；写入拒绝非法或名册中不存在的预设 ID。
+  配置文件按工作区在打开菜单或重载时读取，不做实时文件监听；定时任务、子 Agent 与命令行路径不在范围内。
+  停用插件时撤回菜单入口与默认注入。
 
-所有新会话最终调用 Client 的 `sessions.create`。
-本插件在 `apply` 中替换这个实例方法：
+## 成功标准
 
-1. 调用方给了 `agentPreset`，原样放行。
-2. 没给时，用 `workspaceId`（或按 `cwd` 找到的工作区）查询工作区默认值。
-3. 查不到就原样放行，由 Host 解析全局默认。
-4. 查到就补上 `agentPreset` 再调用原方法。
+| 场景 | 可观察结果 |
+| --- | --- |
+| 设置工作区默认预设 | 右键工作区进入 **默认** 选择某预设后保存并给出提示，菜单标题与 `✓` 标记更新为该预设。 |
+| 覆盖多种新会话入口 | 通过新会话页、侧栏新建、重新打开工作区或恢复空白会话创建该工作区会话时，自动采用工作区默认预设。 |
+| 保留显式选择与已有会话 | 创建时显式指定其他预设时仍按显式预设创建；已开始的旧会话保留原有组合。 |
+| 恢复全局默认与失效回退 | 选择 **使用全局默认** 或工作区配置指向不存在的预设 ID 时，新会话平滑回退全局默认且不报错。 |
+| 拒绝非法输入与停用恢复 | 空值、超长或不存在的预设 ID 写入被拒绝；停用插件后菜单入口消失，新建会话不再注入工作区预设。 |
 
-覆盖创造模式、hero 选择工作区、侧栏“新会话”、重新打开工作区与空白会话恢复。
-恢复路径自带日志里记录的 preset，所以属于第 1 条。
-
-### 文件与宿主
-
-工作区默认值保存在 `<workspace>/.dsh/agent-preset.json`：
-
-```json
-{ "agentPreset": "standard" }
-```
-
-Host half 注册 `workspaceAgentPresets` 服务，把 `workspaceId` 经 durable Workspace registry 解析成目录，
-只读写该目录下的文件。
-Client 通过手写的 Typert contribution（`src/client/index.ts`）挂载同名 Remote namespace。
-Host 在 `index.js` 中显式注册手写的 Typert manifest（`src/lib/typert.ts`），
-提供独立于 `typert-loader` 包缓存的严格 codec。
-构建从 TypeScript 源码生成 `client.js`、`index.js` 与 `lib/*.js`，Git 忽略这些产物。
-浏览器从不传入路径。
-
-写入使用同目录临时文件加 rename；删除文件表示恢复全局默认。
-
-### 菜单呈现
-
-子菜单标题显示当前生效的选择：工作区默认的名称；未设置时显示“全局默认”。
-preset 行沿用 DSH 的显示规则：内置 preset 按与 `presetDisplayText` 相同的 id 到词典键映射，
-从 `settings.agentPreset` 取全名；自定义 preset 使用声明的名称。
-图标通过与 `ui-context-menu` 的 keyed slot `contextMenu.icon` 注册，所有 preset 行共用产品内置的 preset 图标。
-词典不可用时内置 preset 回退到 id，图标模块不可用时图标留空，菜单仍然可用。
-
-### 失效与回退
-
-- 文件缺失、不可读或 JSON 无效：视为没有工作区默认。
-- 写入时 preset id 为空、过长或含控制字符：拒绝。
-- 写入时 Host 能读到 preset 名册：拒绝不存在的 id。
-- 注入后 Host 报告 `agent-preset/not-found` 或 `agent-preset/invalid`：删除缓存并无 preset 重试一次，会话仍能创建。
-
-## 不变量
-
-- 显式 `agentPreset` 永不被覆盖。
-- 任何失败都退化为全局默认，不向打开会话的 UI 抛错。
-- 停用插件时恢复原 `sessions.create` 并撤回 Remote 菜单。
-- 已有会话的组合不因默认值变化而改变。
-
-## 边界
-
-- 工作区文件不做文件监听；缓存值在下次打开菜单或重载 DSH 时刷新。
-- 定时任务、子 Agent 与命令行路径不经过 Client 的 `sessions.create`，不在范围内。
-- 保存默认值时会同步“当前保留且未开始”的空白会话：找到 `blank` 且 `cwd` 等于该工作区、
-  Client 仍持有 Agent scope 的会话，调用 `agentPresets.select`。
-  已开始或不再保留的会话保持日志里记录的组合。
+实现机制和已执行的验证从[项目文档索引](docs/README.md)查阅。
