@@ -1,6 +1,7 @@
 {
   "meta": {
     "title": "工作区默认预设",
-    "description": "为每个工作区记住默认 Agent preset。"
+    "description": "为每个工作区记住默认 Agent preset。",
+    "detail": "docs/DETAIL.zh.md"
   }
 }

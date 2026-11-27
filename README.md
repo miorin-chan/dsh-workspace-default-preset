@@ -9,6 +9,16 @@ The choice lives in `<workspace>/.dsh/agent-preset.json`, and new Sessions there
 
 Requires DeepSeek Harness 0.2.2-rc.3 or newer.
 
+## Screenshots
+
+The DeepSeek Harness interface is shown in Chinese.
+
+![Workspace default preset picker with Release Review checked](docs/assets/screenshots/main-light.png)
+
+- Default entry in the Workspace menu · [Light](docs/assets/screenshots/entry-light.png)
+  · [Dark](docs/assets/screenshots/entry-dark.png)
+- Preset picker · [Light](docs/assets/screenshots/main-light.png) · [Dark](docs/assets/screenshots/main-dark.png)
+
 ## Use
 
 - The submenu title shows the effective choice; the current row carries `✓`.

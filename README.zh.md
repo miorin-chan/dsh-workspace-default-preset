@@ -9,6 +9,14 @@
 
 需要 DeepSeek Harness 0.2.2-rc.3 或更新版本。
 
+## 实拍截图
+
+![工作区默认预设列表勾选「发布审阅」](docs/assets/screenshots/main-light.png)
+
+- 工作区菜单中的「默认」入口 · [浅色](docs/assets/screenshots/entry-light.png) ·
+  [深色](docs/assets/screenshots/entry-dark.png)
+- 默认预设列表 · [浅色](docs/assets/screenshots/main-light.png) · [深色](docs/assets/screenshots/main-dark.png)
+
 ## 使用
 
 - 子菜单标题显示当前生效的选择；当前行带 `✓`。
