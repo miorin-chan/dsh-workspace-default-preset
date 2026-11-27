@@ -2,37 +2,22 @@
 
 [English](README.md)
 
-**每个工作区一个默认 Agent preset。**
+为每个工作区设置默认 Agent preset：在侧栏右键工作区，打开 **默认**，选择 preset 或 **使用全局默认**。
 
-在侧栏右键工作区，打开 **默认**，选择某个 preset 或 **使用全局默认**。
-选择保存在 `<工作区>/.dsh/agent-preset.json`，该工作区的新会话直接使用它。
-
-需要 DeepSeek Harness 0.2.2-rc.3 或更新版本。
+- 配置保存在 `<工作区>/.dsh/agent-preset.json`，
+  生效优先级为「会话显式 preset > 工作区默认 > 全局默认」（仅作用于 Web Client 新建会话，
+  定时任务与子代理保持各自 preset）。
+- 配置按工作区缓存，手工修改文件后需重开菜单或重载 DSH；失效的 preset ID 会忽略并记录一次警告后回退全局默认。
+- 需要 DeepSeek Harness `0.2.2-rc.3` 或更新版本。
+  本插件已包含于 **工作区模块化改良计划**（`@miorin/dsh-atlas-workspace`），两者请勿同时安装。
+- 单独安装：在本目录运行 `pnpm install --frozen-lockfile` 后，
+  从 **插件 → 添加插件** 选择本目录（或通过 `plugin_manager` 安装）。
 
 ## 实拍截图
 
-![工作区默认预设列表勾选「发布审阅」](docs/assets/screenshots/main-light.png)
-
-- 工作区菜单中的「默认」入口 · [浅色](docs/assets/screenshots/entry-light.png) ·
-  [深色](docs/assets/screenshots/entry-dark.png)
-- 默认预设列表 · [浅色](docs/assets/screenshots/main-light.png) · [深色](docs/assets/screenshots/main-dark.png)
-
-## 使用
-
-- 子菜单标题显示当前生效的选择；当前行带 `✓`。
-- 选择 preset 会写入文件并给出提示；**使用全局默认** 会删除该文件。
-- 优先级：会话显式 preset > 工作区默认 > 全局默认。
-
-## 限制
-
-- 文件按工作区读取一次后缓存；手工修改后需重开菜单或重载 DSH。
-- 已不存在的 preset id 会被忽略并打印一次警告；会话改用全局默认。
-- 只作用于 Web Client 创建的新会话；定时任务与子 Agent 自带 preset。
-
-## 安装
-
-在新检出的目录中运行 `pnpm install --frozen-lockfile` 安装依赖并构建插件。
-然后在 **插件** > **添加插件** 中选择该目录，或通过 `plugin_manager` 安装。
-本插件属于 [`@miorin/dsh-atlas-workspace`](../dsh-atlas-workspace/README.zh.md) 聚合包；两者只能装一个。
+| | 浅色 | 深色 |
+| --- | --- | --- |
+| 默认入口 | ![工作区菜单中的「默认」入口（浅色）](docs/assets/screenshots/entry-light.png) | ![工作区菜单中的「默认」入口（深色）](docs/assets/screenshots/entry-dark.png) |
+| 默认预设列表 | ![工作区默认预设列表勾选「发布审阅」（浅色）](docs/assets/screenshots/main-light.png) | ![工作区默认预设列表勾选「发布审阅」（深色）](docs/assets/screenshots/main-dark.png) |
 
 [项目文档](docs/README.md)

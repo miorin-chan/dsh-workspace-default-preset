@@ -1,6 +1,7 @@
 {
   "meta": {
     "title": "Workspace Default Preset",
-    "description": "Keep a default agent preset for each workspace."
+    "description": "Keep a default agent preset for each workspace.",
+    "detail": "docs/DETAIL.md"
   }
 }
